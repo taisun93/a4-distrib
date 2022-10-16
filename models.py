@@ -85,7 +85,11 @@ class RNNClassifier(ConsonantVowelClassifier):
         return self.NN.run(context)
 
     def predict(self, context):
-        raise Exception("Implement me")
+        answer = self.NN.run(context)
+             
+        if answer[0]>answer[1]:
+            return 0
+        return 1
 
 
 def train_frequency_based_classifier(cons_exs, vowel_exs):
@@ -115,24 +119,26 @@ def train_rnn_classifier(args, train_cons_exs, train_vowel_exs, dev_cons_exs, de
     np.random.shuffle(train_exs)
 
     classifier = RNNClassifier(vocab_index)
-    train_exs = train_exs[:100]
+    # train_exs = train_exs[:40]
 
     # fst = train_exs[0][0]
     # prob = classifier.getprob(fst)
     lossFunction = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(classifier.NN.parameters(), lr=.01)
+    optimizer = optim.Adam(classifier.NN.parameters(), lr=.1)
     # print(prob)
-    for epoch in range(2):
+    for epoch in range(3):
         totalLoss = 0
         # random.shuffle(train_exs)
         for ex in train_exs:
-            words, target = ex[0], ex[1]
+            words, target = ex[0], float(ex[1])
+            # print(words)
+            # print(target)
+            # print(type(target))
             prob = classifier.getprob(words)
             
-            # correct: Any
-            if target == 0:
+            if target == 0.0:
                 correct = torch.tensor([1.0, 0.0])
-            else:
+            elif target == 1.0:
                 correct = torch.tensor([0.0, 1.0])
 
 
@@ -142,9 +148,10 @@ def train_rnn_classifier(args, train_cons_exs, train_vowel_exs, dev_cons_exs, de
             classifier.NN.zero_grad()
             loss.backward()
             optimizer.step()
+
         print(f"loss in {epoch} is {totalLoss}")
 
-    
+    return classifier
     # ex_converted = []
 
     

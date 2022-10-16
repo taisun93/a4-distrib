@@ -2,6 +2,7 @@
 
 import argparse
 import json
+from operator import mod
 import time
 from models import *
 from utils import *
@@ -126,13 +127,13 @@ if __name__ == '__main__':
     vocab_index = Indexer()
     for char in vocab:
         vocab_index.add_and_get_index(char)
-    print(repr(vocab_index))
+    # print(repr(vocab_index))
 
     print("First 100 characters of train:")
     # 
     # Train our model
     if args.model == "RNN":
-        model = train_lm(args, train_text, dev_text, vocab_index)
+        model = train_rnn_classifier(args, train_text, dev_text, vocab_index)
     elif args.model == "UNIFORM":
         model = UniformLanguageModel(len(vocab))
     else:

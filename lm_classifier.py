@@ -75,12 +75,12 @@ if __name__ == '__main__':
     dev_vowel_exs = read_examples(args.dev_vowel)
 
     # Vocabs is lowercase letters a to z and space
-    # print("dsflkjsdfjlksdfljkdslk")
+    
     vocab = [chr(ord('a') + i) for i in range(0, 26)] + [' ']
     vocab_index = Indexer()
     for char in vocab:
         vocab_index.add_and_get_index(char)
-    print(repr(vocab_index))
+    # print(repr(vocab_index))
 
     system_to_run = args.model
     # Train our model
@@ -91,5 +91,7 @@ if __name__ == '__main__':
     else:
         raise Exception("Pass in either UNIFORM or LSTM to run the appropriate system")
 
-    # print_evaluation(dev_cons_exs, dev_vowel_exs, model, args.output_bundle_path)
+    print_evaluation(dev_cons_exs, dev_vowel_exs, model, args.output_bundle_path)
+    train_eval_time = time.time() - start_time
+    print(train_eval_time)
     # print_evaluation(train_cons_exs[0:50], train_vowel_exs[0:50], model)
