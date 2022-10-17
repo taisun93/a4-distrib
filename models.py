@@ -40,13 +40,16 @@ class FrequencyBasedClassifier(ConsonantVowelClassifier):
 
 class LSTM(nn.Module):
     def __init__(self, vocab_index):
+        hidden = 5
+        input = 8
         super(LSTM, self).__init__()
         self.vocab_index = vocab_index
-        self.embedLayer = nn.Embedding(27, 2)
+        self.embedLayer = nn.Embedding(27, input)
 
-        self.LSTM = nn.LSTM(2, 3)
+        self.LSTM = nn.LSTM(input, hidden)
 
-        self.W = nn.Linear(3, 2)
+        self.W = nn.Linear(hidden, hidden)
+        self.W2 = nn.Linear(hidden, 2)
         # self.W2 = nn.Linear(2, 1)
 
         for layer in self.LSTM._all_weights:
@@ -69,8 +72,8 @@ class LSTM(nn.Module):
         
 
         # final = self.W2(final)
-        return self.W(out[-1])
-        
+        final1 = self.W(out[-1])
+        return self.W2(final1)
         # return F.log_softmax(final.view(2,-1), dim=1)
 
         
@@ -116,7 +119,7 @@ def train_rnn_classifier(args, train_cons_exs, train_vowel_exs, dev_cons_exs, de
     train_cons = np.transpose((np.array(train_cons_exs), np.zeros((len(train_cons_exs)))))
     train_vows = np.transpose((np.array(train_vowel_exs), np.ones((len(train_vowel_exs)))))
     train_exs = np.vstack((train_cons, train_vows))
-    np.random.shuffle(train_exs)
+    
 
     classifier = RNNClassifier(vocab_index)
     # train_exs = train_exs[:40]
@@ -124,9 +127,10 @@ def train_rnn_classifier(args, train_cons_exs, train_vowel_exs, dev_cons_exs, de
     # fst = train_exs[0][0]
     # prob = classifier.getprob(fst)
     lossFunction = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(classifier.NN.parameters(), lr=.1)
+    optimizer = optim.Adam(classifier.NN.parameters(), lr=.002)
     # print(prob)
-    for epoch in range(3):
+    for epoch in range(6):
+        np.random.shuffle(train_exs)
         totalLoss = 0
         # random.shuffle(train_exs)
         for ex in train_exs:
